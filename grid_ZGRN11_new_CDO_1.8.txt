@@ -1,0 +1,1 @@
+/glade/p/work/lvank/racmo/racmo23_GRN_monthly/grid_ZGRN11_new_CDO_1.8.txt

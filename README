@@ -1,0 +1,5 @@
+
+# CDO 1.8.2
+alias cdo='/glade/u/home/lvank/bin/cdo-1.8.2/src/cdo'
+#cdo remapnn,grid_ZGRN11_new_CDO_1.8.txt gridded3d_TOPO_COL_b.e20.BHIST.f09_g17.20thC.190_ramp204_reset.002_1980-2005_ymonmean.nc topo_racmo.nc
+cdo remapnn,grid_ZGRN11_new_CDO_1.8.txt gridded3d_TSA_b.e20.BHIST.f09_g17.20thC.190_ramp204_reset.002_1980-2005_ymonmean.nc tsa_racmo.nc
