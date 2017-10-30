@@ -49,7 +49,7 @@ for varname in varlist:
    
    #print(h[0,0,0])
    
-   td = np.zeros((ntime,nrlon,nrlat)) # result
+   td = np.ma.zeros((ntime,nrlon,nrlat)) # result
    print('td',td.shape)
    
    import time
