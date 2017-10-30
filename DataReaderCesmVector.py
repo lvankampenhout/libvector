@@ -116,7 +116,10 @@ class DataReaderCesmVector(object):
       Returns vector data as gridded (lat/lon) numpy array with levels (MEC).
       """
       lon2d,lat2d = np.meshgrid(self.lons,self.lats)
-      var_out = np.zeros((self.ntime,self.nlats,self.nlons,GLC_NEC))    
+      var_out = np.ma.zeros((self.ntime,self.nlats,self.nlons,GLC_NEC))
+
+      # Mask out all points without GLC_MEC
+      var_out[:] = np.ma.masked
       
       for lev in range(GLC_NEC):
          mask = (self.coltype==(400+lev+1))
@@ -126,9 +129,6 @@ class DataReaderCesmVector(object):
          
          #print(tskin[:,idx].shape, var_out[:,iy,ix,lev].shape)
          var_out[:,iy,ix,lev] = self.data_cesm[:,idx]
-            
-      # Mask out all points without GLC_MEC
-      var_out = np.ma.masked_less(var_out, 1e-4)
    
       # Mask out points with missing value
       var_out = np.ma.masked_greater(var_out, 1e34)
