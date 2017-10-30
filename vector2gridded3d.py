@@ -51,7 +51,8 @@ cases += [('b.e20.BHIST.f09_g17.20thC.190_ramp204_reset.002','1980','2005')]
 #xlist+=[('SNO_GS','microns','grain size',1)]
 #xlist+=[('H2OSNO','m','snow depth',1)]
 #xlist+=[('TSA',,1)]
-varlist = ['TSA']
+#varlist = ['TSA']
+varlist = ['RAIN_REPARTITIONED', 'SNOW_REPARTITIONED']
 
 #! Stream 2: monthly, vector
 #hist_fincl2 = 'QRUNOFF', 'QSOIL', 'QSNOMELT', 'QSNOFRZ', 'H2OSNO', 'FSR', 'FSA', 'FIRE', 'FIRA', 'EFLX_LH_TOT', 'FSH', 'FGR', 'FSM', 'TG ', 'TSA', 'U10', 'TSOI', 'H2OSNO', 'SNOW_DEPTH', 'SNOWDP', 'SNOWLIQ', 'SNOWICE', 'FSNO', 'FSNO_EFF', 'SNOTTOPL', 'QICE_OLD', 'QICE', 'QICE_FRZ', 'QICE_MELT', 'SNO_TK', 'SNO_ABS', 'SNO_Z', 'SNO_T', 'SNO_LIQH2O','SNO_ICE', 'SNO_BW','SNO_EXISTENCE','SNO_GS', 'SNO_MELT', 'SNO_FRZ', 'RAIN_REPARTITIONED', 'SNOW_REPARTITIONED'
@@ -121,10 +122,10 @@ for case,ys,ye in cases:
       print(var3d.shape) #(12, 10, 192, 288)
    
       # Create output variable of correct dimensions
-      var            = ncfile.createVariable(varname,'f4',('time','lev','latitude','longitude',))
+      var            = ncfile.createVariable(varname,'f8',('time','lev','latitude','longitude',))
       var.units      = datareader1.units
       var.long_name  = datareader1.long_name
-      var[:,:,:,:]   = default_fillvals['f4'] # Initialise with missing value everywhere (will be replaced later)
+      var[:,:,:,:]   = default_fillvals['f8'] # Initialise with missing value everywhere (will be replaced later)
    	
       var[:] = var3d[:]
    
