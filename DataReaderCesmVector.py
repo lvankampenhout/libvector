@@ -168,6 +168,8 @@ class DataReaderCesmVector(object):
 
       var_out = np.zeros((self.ntime,self.nlats,self.nlons,GLC_NEC))    
       
+      # :ctype_landice = 3 ;
+      # :ctype_landice_multiple_elevation_classes = "4*100+m, m=1,glcnec" ;
       for lev in range(GLC_NEC):
          mask = (self.coltype==(400+lev+1))
          idx, = np.where(mask)
