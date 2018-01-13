@@ -9,17 +9,21 @@ import numpy as np
 import xarray as xr
 
 case = 'b.e20.BHIST.f09_g17.20thC.190_ramp204_reset.002'
-period = '1980-2005'
+#period = '1980-2005'
+period = '1961-1990'
 filetype="ymonmean_racmo"
 
 topo_vec    = 'topo_racmo.nc'
 #var_vec     = 'tsa_racmo.nc'
 
-#topo_target = '/glade/p/work/lvank/racmo/racmo23p2_GRN_monthly/elev.nc'
-topo_target = '/Users/leo/workspace/data/racmo/racmo23p2/elev.nc'
+topo_target = '/glade/p/work/lvank/racmo/racmo23p2_GRN_monthly/elev.nc'
+#topo_target = '/Users/leo/workspace/data/racmo/racmo23p2/elev.nc'
 
-#varlist = 'TSA'.split()
-varlist = 'EFLX_LH_TOT FGR FIRA FIRE FSA FSH FSM FSR QRUNOFF QSNOFRZ QSNOMELT QSOIL RAIN_REPARTITIONED SNOW_REPARTITIONED TG U10'.split()
+#varlist = 'EFLX_LH_TOT FGR FIRA FIRE FSA FSH FSM FSR QRUNOFF QSNOFRZ QSNOMELT QSOIL U10'.split()
+#varlist += 'RAIN_REPARTITIONED SNOW_REPARTITIONED'.split()
+#varlist += 'TSA TG'.split()
+varlist = 'QICE'.split()
+print(varlist)
 
 for varname in varlist: 
    var_vec = "gridded3d_%s_%s_%s_%s.nc" % (varname,case,period,filetype)
@@ -39,6 +43,7 @@ for varname in varlist:
    
    v = d2[varname].values[:]
    print(v.shape)
+   print(v.dtype)
    (ntime, nlev, nrlon, nrlat) = v.shape
    
    elev = d3['Elevation'].values
@@ -47,10 +52,9 @@ for varname in varlist:
    hh=np.ma.masked_greater(h,1e30)
    vv=np.ma.masked_greater(v,1e30)
    
-   #print(h[0,0,0])
-   
    td = np.ma.zeros((ntime,nrlon,nrlat)) # result
-   print('td',td.shape)
+   td[:] = np.ma.masked
+   print(varname,td.shape,td.dtype)
    
    import time
    t1 = time.time()
@@ -59,7 +63,8 @@ for varname in varlist:
    for itime in np.arange(ntime):
       for ilon in np.arange(nrlon):
          for ilat in np.arange(nrlat):
-            td[itime, ilon,ilat] = np.interp(elev[ilon,ilat],hh[:,ilon,ilat],vv[itime,:,ilon,ilat])
+            if (not np.any(vv.mask[itime,:,ilon,ilat])):
+               td[itime, ilon,ilat] = np.interp(elev[ilon,ilat],hh[:,ilon,ilat],vv[itime,:,ilon,ilat])
    
    t2 = time.time()
    print('elapsed [s]',t2-t1)
