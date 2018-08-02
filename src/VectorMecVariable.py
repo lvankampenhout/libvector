@@ -1,14 +1,40 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-   DataReaderCesmVector 
-   Framework to read column-output (vector) CLM variables from file and apply operations
+-----------------
+VectorMecVariable
+-----------------
+
+This class represents a memory representation of a CLM variable which has been 
+computed on Multiple Elevation Classes (MEC). 
+
+Normally, these variables are aggregated  on the grid cell level, and the vertical
+or level information is lost.
+However, by setting hist_dov2xy = .false. in the CLM namelist all CLM columns are 
+output -- this is called "vector output". 
+
+MEC variables are used over ice sheets and glaciers and typically have 
+11 levels: level 0 representing tundra and the other 10 are different elevations
+of the glaciated part of the grid cell. 
+
+Some of these levels are "virtual", meaning that they don't have any area associated
+with them. Over Antarctica, virtual columns are usually disabled. This is controlled
+by the CLM namelist (see User Documentation for more details). 
+To find out which columns are virtual and which are not, coupler output can be used.
+This coupler information is required to e.g. downscale on a 2 D map.
+
+MEC column area and topographic height are determined by a high-resolution ice mask, 
+e.g. from CISM. This is typically done in the first time step of any simulation. 
+The topographic height of MEC levels is variable across grid cells. For example, 
+in one grid cell, level 6 may correspond to elevation 550 m, whereas in the next it 
+corresponds to elevation 570 m. This stems from the fact that MEC columns are associated 
+with *bins* and not *heights*. Within each elevation bin, the mean of the underlying 
+topography is assigned to topographic height (CLM: variable TOPO_COL).
 
 @author: L.vankampenhout@uu.nl
+
 """
 
-GLC_NEC = 10 # maximum number of elevation classes present in input file
-COLUNIT_GLCMEC = 4 # for landunit types and column types, land ice = 7 (older CLM) land ice = 4 (newer CLM)
 
 import numpy as np
 from netCDF4 import Dataset, default_fillvals
@@ -16,6 +42,9 @@ from netCDF4 import Dataset, default_fillvals
 import matplotlib.pyplot as plt
 import matplotlib
 
+
+GLC_NEC = 10 # maximum number of elevation classes present in input file
+COLUNIT_GLCMEC = 4 # for landunit types and column types, land ice = 7 (older CLM) land ice = 4 (newer CLM)
 
 
 class DataReaderCesmVector(object):

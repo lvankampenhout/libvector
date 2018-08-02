@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri May 19 11:06:44 2017
+Wrapper function for converting a VectorMecVariable into a 2D variable
+and writing the output to NetCDF
 
-@author: leo
+@author: L.vankampenhout@uu.nl
 """
-
-GLC_NEC = 10 # maximum number of elevation classes present in input file
-COLUNIT_GLCMEC = 4 # for landunit types and column types, land ice = 7 (older CLM) land ice = 4 (newer CLM)
 
 import numpy as np
 from netCDF4 import Dataset, default_fillvals
@@ -19,48 +17,13 @@ import os.path
 from string import Template
 from DataReaderCesmVector import DataReaderCesmVector
 
-
-
-# =========================
-# 2-D Grid information
-# =========================
-ice_cover = '../cesm2beta_run144/ice_cover144.nc'
-vector_info = 'vector_info183.nc'
-
-with Dataset(vector_info,'r')  as fid:
-   nlon = len(fid.dimensions['lon'])
-   print('Longitude = '+str(nlon))
-   nlat = len(fid.dimensions['lat'])
-   print('Latitude = '+str(nlat))
-   lats_      = fid.variables['lat'][:]               # latitude array
-   lons_      = fid.variables['lon'][:]               # longitude array
-
-
-#filetype="ymonmean"
-filetype="yearmean"
-
-S = Template('/glade/scratch/lvank/archive/avg2/${case}/${period}/vector/${varname}_${case}_'+filetype+'.nc')
-
-cases = []
-#cases += [('b.e20.BHIST.f09_g17.20thC.183_01_cpl3h.003','1870','1873')]
-#cases += [('b.e20.BHIST.f09_g17.20thC.183_01_gs300_nmelt10','1870','1887')]
-#cases += [('b.e20.BHIST.f09_g17.20thC.183_01_gs204_nmelt10','1870','1878')]
-#cases += [('b.e20.BHIST.f09_g17.20thC.183_01_gs300_nmelt10_reset','1873','1878')]
-#cases += [('b.e20.BHIST.f09_g17.20thC.183_01_ramp54_204_nmelt10_reset','1870','1875')]
-cases += [('b.e20.BHIST.f09_g17.20thC.183_01_gs300_nmelt10_rfgrain_iwc5_glc1m','1870','1884')]
-cases += [('b.e20.BHIST.f09_g17.20thC.183_01_gs300_nmelt10_reset','1893','1897')]
-
-xlist = []
-#xlist+=[('SNO_GS','microns','grain size',1)]
-xlist+=[('H2OSNO','m','snow depth',1)]
-
-ice_cover_including_ANT = 'pct_glc_mec_icesheet.nc'
-
-for case,ys,ye in cases:
-   period  = ys +'-' + ye
-
-   for x in xlist:
-      print(case,x)
+def vector2gridded2d(varname, fname_vector, fname_target, fname_cpl_hist):
+      """
+      varname           CLM variable name
+      fname_vector      filename of CLM vector output file
+      fname_target      filename of output file (netCDF)
+      fname_cpl_hist    filename of coupler history output file (needed for glacier fraction)
+      """
 
       varname, units, vardesc, fac = x
       filename = S.substitute(varname=varname, case=case, period=period)
