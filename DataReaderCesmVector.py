@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri May 19 11:06:44 2017
+   DataReaderCesmVector 
+   Framework to read column-output (vector) CLM variables from file and apply operations
 
-@author: leo
+@author: L.vankampenhout@uu.nl
 """
 
 GLC_NEC = 10 # maximum number of elevation classes present in input file
@@ -20,7 +21,6 @@ import matplotlib
 class DataReaderCesmVector(object):
    def __init__(self, varname, filename, vector_info, ice_cover, fac):
       """
-      Read column-output CESM variable from file and store for later use.
       
       varname:       variable name
       filename:      data file
