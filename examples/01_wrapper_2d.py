@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-   example 01
-   
-   Read single vector file and convert variable "QICE" to 2d gridded variable
-   using wrapper script. Store result in NetCDF.
+   Converting QICE from vector file into a 2d gridded variable using a wrapper script. 
+
+   The result is a NetCDF file.
 """
 import sys
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-   example 00
-   
-   Read single vector file and convert variable "QICE" to 3d gridded variable
+   Read single vector file and convert variable "QICE" to 3d gridded variable.
+
+   The result is a numpy array.
 """
 import sys
 
