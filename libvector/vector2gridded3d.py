@@ -43,7 +43,7 @@ def vector2gridded3d(vmv, fname_target, custom_levs=None):
    lons   = ncfile.createVariable('longitude', 'f4', ('longitude',))
    lats   = ncfile.createVariable('latitude', 'f4', ('latitude',))
    times    = ncfile.createVariable('time', 'f8', ('time',))
-   levs   = ncfile.createVariable('lev', 'f4', ('lev',))
+   levs   = ncfile.createVariable('lev', 'i4', ('lev',))
 
    # Assign units attributes to coordinate var data
    lons.units   = "degrees_east"
@@ -69,10 +69,12 @@ def vector2gridded3d(vmv, fname_target, custom_levs=None):
    #print(var3d.shape) #(12, 10, 192, 288)
    
    # Create output variable of correct dimensions
-   var            = ncfile.createVariable(vmv.varname,'f8',('time','lev','latitude','longitude',))
+   # 'f4' stands for floating point 4 bytes, i.e. single precision
+   # change to 'f8' for double precision
+   var            = ncfile.createVariable(vmv.varname,'f4',('time','lev','latitude','longitude',), fill_value=default_fillvals['f4'])
    var.units      = vmv.units
    var.long_name  = vmv.long_name
-   var[:,:,:,:]   = default_fillvals['f8'] # Initialise with missing value everywhere (will be replaced later)
+   var[:,:,:,:]   = default_fillvals['f4'] # Initialise with missing value everywhere (will be replaced later)
    
    var[:] = var3d[:]
    

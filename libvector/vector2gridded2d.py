@@ -56,6 +56,8 @@ def vector2gridded2d(vmv, fname_target):
    #print(sno_gs.shape) #(12, 192, 288, 10)
 
    # Create output variable of correct dimensions
+   # 'f4' stands for floating point 4 bytes, i.e. single precision
+   # change to 'f8' for double precision
    var = ncfile.createVariable(vmv.varname,'f4',('time','latitude','longitude',),fill_value=default_fillvals['f4'])
    var.units      = vmv.units
    var.long_name  = vmv.long_name
