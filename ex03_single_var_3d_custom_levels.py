@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-   example 02
+   example 03
    
    Read single vector file and convert variable "QICE" to 3d gridded variable
-   using wrapper script. Store result in NetCDF.
+   using custom levels. Store result in NetCDF.
 """
 
 GLC_NEC = 10 # maximum number of elevation classes present in input file
