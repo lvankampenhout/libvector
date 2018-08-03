@@ -4,20 +4,29 @@
 @author: L.vankampenhout@uu.nl
 """
 
-from libvector.VectorMecVariable import VectorMecVariable, GLC_NEC
+from VectorMecVariable import VectorMecVariable, GLC_NEC, rtnnam
 from netCDF4 import Dataset, default_fillvals
 
-def vector2gridded3d(vmv, fname_target):
+def vector2gridded3d(vmv, fname_target, custom_levs=None):
    """
    Wrapper function for converting a VectorMecVariable into a 3D variable
    and writing the output to NetCDF.
 
    :param vmv:             VectorMecVariable instance
    :param fname_target:    filename of output file (netCDF)
+   :param custom_levs:     custom levels
+   :type vmv:              VectorMecVariable
+   :type fname_target:     string
+   :type custom_levs:      python list
    """
+   print('INFO: %s: number of vectors = %d' % (rtnnam(), vmv.nvec))
 
-   print('INFO: number of vectors = %d' % vmv.nvec)
-   var3d = vmv.getGridded3d()
+   if (custom_levs == None):
+      var3d = vmv.getGridded3d()
+      nlev = GLC_NEC
+   else:
+      var3d = vmv.getGridded3dCustomLevels(custom_levs)
+      nlev = len(custom_levs)
 
    # Open a new NetCDF file to write the data to. For format, you can choose from
    # 'NETCDF3_CLASSIC', 'NETCDF3_64BIT', 'NETCDF4_CLASSIC', and 'NETCDF4'
@@ -28,7 +37,7 @@ def vector2gridded3d(vmv, fname_target):
    ncfile.createDimension('longitude', vmv.nlon)
    ncfile.createDimension('latitude', vmv.nlat)
    ncfile.createDimension('time', None)
-   ncfile.createDimension('lev',GLC_NEC)
+   ncfile.createDimension('lev',nlev)
 
    # Define the coordinate var
    lons   = ncfile.createVariable('longitude', 'f4', ('longitude',))
@@ -51,7 +60,7 @@ def vector2gridded3d(vmv, fname_target):
    lats[:]    = vmv.lats
    #times[:]   = times_
    times[:] = vmv.time
-   levs[:]    = range(0,GLC_NEC)
+   levs[:]    = range(0,nlev)
    
    # Write data
 

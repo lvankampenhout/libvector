@@ -4,7 +4,7 @@
 @author: L.vankampenhout@uu.nl
 """
 
-from libvector.VectorMecVariable import VectorMecVariable, GLC_NEC
+from VectorMecVariable import VectorMecVariable, GLC_NEC
 from netCDF4 import Dataset, default_fillvals
 
 def vector2gridded2d(vmv, fname_target):
