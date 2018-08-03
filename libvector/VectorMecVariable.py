@@ -137,13 +137,19 @@ class VectorMecVariable(object):
 
      
 
-   def applyFactor(self, fac):
+   def applyFactor(self, fac, units=None):
       """
       Apply some scalar factor to variable in memory
 
       :param fac:         factor
+      :param units:       new units (if applicable)
+      :type fac:          int or float
+      :type units:        string
       """
       self.data *= fac   
+      if (units != None):
+         self.units = units
+         print("INFO: %s: converted units to: %s" % (rtnnam(), units))
 
 
    def setGlcFracCouplerFile(self, filename):
@@ -193,8 +199,8 @@ class VectorMecVariable(object):
          for i in range(0,GLC_NEC+1):
             self.mec_topo[i,:,:] = fid.variables['l2gacc_lx_Sl_topo%02d' % i][:].reshape(self.nlat, self.nlon)# CESM 2.0
 
-      print(self.mec_topo[:,176,254]) # GrIS
-      print(self.mec_topo[:,164,250]) # GrIS
+      #print(self.mec_topo[:,176,254]) # GrIS
+      #print(self.mec_topo[:,164,250]) # GrIS
       #print(self.mec_topo[:,10,10]) # AIS
       #print(self.mec_topo[:,20,76]) # AIS
       #print(self.mec_topo[:,100,100]) # missing values
