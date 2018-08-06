@@ -68,6 +68,7 @@ class VectorMecVariable(object):
       :returns: nothing
       """
       self.varname = varname
+      self.fname_vector = fname_vector
 
       if (fname_vecinfo == None):
          self.fname_vecinfo = fname_vector # read grid info from vector file itself
@@ -79,10 +80,17 @@ class VectorMecVariable(object):
          self.time_units = fid.variables['time'].units
          self.var_type = fid.variables[varname].dimensions[-1] # 'col' or 'pft'
          self.long_name = fid.variables[varname].long_name
-         self.units = fid.variables[varname].units
+
+         try:
+            self.units = fid.variables[varname].units
+         except AttributeError:
+            self.units = "-"
 
          if (varname[0:4] == "SNO_"):
-            # workaround layered data (like SNO_GS) : use top layer only
+            # special case for layered data (like SNO_T, SNO_GS) : use top layer only
+            self.data = fid.variables[varname][:,0,:]
+         elif (varname[0:4] == "TSOI"):
+            #print(np.shape(fid.variables[varname][:])) # (1, 25, 97387)
             self.data = fid.variables[varname][:,0,:]
          else:
             self.data = fid.variables[varname][:]
@@ -93,7 +101,16 @@ class VectorMecVariable(object):
       
       print('INFO: %s: read variable %s, which is of type %s' %(rtnnam(), varname, self.var_type))
       
-      self.ntime, self.nvec = self.data.shape
+      self.ndim = self.data.ndim
+      if (self.ndim == 1):
+         # static variable
+         self.ntime = 1
+         self.nvec = len(self.data)
+      elif (self.ndim == 2):
+         # assume time indexed variable
+         self.ntime, self.nvec = self.data.shape
+      else:
+         raise NotImplementedError('Unexpected number of dimensions of input data, ndim = %d > 2' % self.ndim)
 
       # Read vector indices and grid information
       try: 
@@ -244,7 +261,12 @@ class VectorMecVariable(object):
          iy = self.jxy[idx]-1
          
          #print(tskin[:,idx].shape, var_out[:,iy,ix,lev].shape)
-         var_out[:,iy,ix,lev] = self.data[:,idx]
+         if (self.ndim == 1):
+            var_out[:,iy,ix,lev] = self.data[idx]
+         elif (self.ndim == 2):
+            var_out[:,iy,ix,lev] = self.data[:,idx]
+         else:
+            raise NotImplementedError('Unexpected number of dimensions of input data, ndim = %d > 2' % self.ndim)
    
       # Mask out points with missing value
       var_out = np.ma.masked_greater(var_out, 1e34)
