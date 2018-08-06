@@ -5,6 +5,8 @@
 """
 
 from VectorMecVariable import VectorMecVariable, GLC_NEC, rtnnam
+import netCDF4
+import time
 from netCDF4 import Dataset, default_fillvals
 
 def vector2gridded3d(vmv, fname_target, custom_levs=None):
@@ -14,7 +16,7 @@ def vector2gridded3d(vmv, fname_target, custom_levs=None):
 
    :param vmv:             VectorMecVariable instance
    :param fname_target:    filename of output file (netCDF)
-   :param custom_levs:     custom levels
+   :param custom_levs:     custom levels of elevation (m)
    :type vmv:              VectorMecVariable
    :type fname_target:     string
    :type custom_levs:      python list
@@ -31,7 +33,18 @@ def vector2gridded3d(vmv, fname_target, custom_levs=None):
    # Open a new NetCDF file to write the data to. For format, you can choose from
    # 'NETCDF3_CLASSIC', 'NETCDF3_64BIT', 'NETCDF4_CLASSIC', and 'NETCDF4'
    ncfile = Dataset(fname_target, 'w', format='NETCDF4')
-   ncfile.description = 'Gridded field from CLM vector output'
+   ncfile.title = 'CESM/CLM glacier elevation class output regridded to 3-dimensional mesh'
+   ncfile.model = "CESM / Community Land Model"
+
+   ncfile.institute = "NCAR / Utrecht University"
+   ncfile.contact = "L.vankampenhout@uu.nl"
+
+   ncfile.history = rtnnam() + " was applied to "+ vmv.fname_vector + " on " +time.strftime("%a %b %d %Y %H:%M:%S")
+   ncfile.softwareURL = "https://github.com/lvankampenhout/libvector"
+   ncfile.netcdf = netCDF4.__netcdf4libversion__
+
+   ncfile.creation_date = time.strftime('%Y-%m-%d %X')
+   #ncfile.frequency = "mon" 
 
    # Create dimensions
    ncfile.createDimension('longitude', vmv.nlon)
@@ -54,6 +67,7 @@ def vector2gridded3d(vmv, fname_target, custom_levs=None):
    times.units = vmv.time_units
    
    levs.units   = "MEC level number"
+
    
    # Write data to coordinate var
    lons[:]    = vmv.lons
@@ -61,6 +75,16 @@ def vector2gridded3d(vmv, fname_target, custom_levs=None):
    #times[:]   = times_
    times[:] = vmv.time
    levs[:]    = range(0,nlev)
+
+   # Write custom elevations, if any
+   if (custom_levs == None):
+      ncfile.vertical_levels = "no vertical interpolation was applied; MEC elevation is variable across grid cells"
+   else:
+      ncfile.vertical_levels = "interpolated to user-specified heights"
+      elevation  = ncfile.createVariable('elevation', 'f4', ('lev',))
+      elevation.units = "m"
+      elevation[:]    = custom_levs
+      
    
    # Write data
 
@@ -74,6 +98,7 @@ def vector2gridded3d(vmv, fname_target, custom_levs=None):
    var            = ncfile.createVariable(vmv.varname,'f4',('time','lev','latitude','longitude',), fill_value=default_fillvals['f4'])
    var.units      = vmv.units
    var.long_name  = vmv.long_name
+
    var[:,:,:,:]   = default_fillvals['f4'] # Initialise with missing value everywhere (will be replaced later)
    
    var[:] = var3d[:]
