@@ -7,8 +7,10 @@ However, internally CLM grid cells are made out of columns, for instance crop, l
 Each column has a type called a "landunit", we refer to the CLM User Guide for more details.
 In order to retrieve the column output one can set
 
-   hist_dov2xy = .false. 
-  
+```
+hist_dov2xy = .false. 
+```
+
 in the CLM namelist. 
 Instead of a structured lat-lon grid, the output is now unstructured and each value represents a column.
 This is column or vector output. 
@@ -26,6 +28,7 @@ The core of this package is the `VectorMecVariable` class which represents exact
 ## Requirements
 The user should have CLM vector output. E.g. the `user_nl_clm` contains these lines
 
+```
    hist_nhtfrq = 0,-24,0
    hist_mfilt = 1,1,1
    hist_dov2xy = .true., .true, .false.
@@ -35,6 +38,7 @@ The user should have CLM vector output. E.g. the `user_nl_clm` contains these li
    
    ! monthly, vector
    hist_fincl3 = 'QICE`
+```
 
 which define three output streams. Stream one (`*.h0.*.nc`) contains the gridded monthly data, stream two (`*.h1.*.nc`) contains daily gridded data and stream three (`*.h2.*.nc`) contains unstructured monthly vector data. 
 
@@ -43,8 +47,8 @@ see the `examples` directory.
 
 ## Usage notes
 Some operations require additional information, for instance the ice cover or the topographic height of columns.
-*The documentation needs to be updated to reflect these extra requirements.*
-The package will yield an error message in case a requirement hasn't been met.
+**Alas, the documentation about this still needs to be written.**
+Luckily, the package will yield an error message in case a requirement hasn't been met.
 
 ## Getting help
 Create an Github issue at https://github.com/lvankampenhout/libvector or contact me at L.vankampenhout@uu.nl
