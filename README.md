@@ -13,7 +13,7 @@ hist_dov2xy = .false.
 
 in the CLM namelist. 
 Instead of a structured lat-lon grid, the output is now unstructured and each value represents a column.
-This is column or vector output. 
+This we call *column* or *vector* output. 
 
 ## Multiple elevation classes
 Here, we are interested in the vertical distribution of energy and mass over glaciers.
@@ -63,7 +63,7 @@ see the `examples` directory.
 ## Usage notes
 Some operations require additional information, for instance the ice cover or the topographic height of columns.
 **Alas, the documentation about this still needs to be written.**
-Luckily, the package will yield an error message in case a requirement hasn't been met.
+Luckily, the package will yield a somewhat helpful error message in case a requirement hasn't been met.
 
 ## Getting help
 Create an Github issue at https://github.com/lvankampenhout/libvector or contact me at L.vankampenhout@uu.nl
