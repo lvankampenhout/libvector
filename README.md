@@ -13,7 +13,7 @@ hist_dov2xy = .false.
 
 in the CLM namelist. 
 Instead of a structured lat-lon grid, the output is now unstructured and each value represents a column.
-This is column or vector output. 
+This we call *column* or *vector* output. 
 
 ## Multiple elevation classes
 Here, we are interested in the vertical distribution of energy and mass over glaciers.
@@ -24,9 +24,10 @@ The values at different heights can be obtained from the vector output (see abov
 The goal of this package is to take the unstructured vector output and turn that into something more useable: a structured lat-lon 3d gridded field. 
 The core of this package is the `VectorMecVariable` class which represents exactly one variable stored in one vector history file.
 
-
-## Requirements
-The user should have CLM vector output. E.g. the `user_nl_clm` contains these lines
+## Input
+The package works on CLM vector history output. 
+Standard CESM runs do not have this!
+To generate vector output, add e.g. these lines to your `user_nl_clm`:
 
 ```
    hist_nhtfrq = 0,-24,0
@@ -42,13 +43,27 @@ The user should have CLM vector output. E.g. the `user_nl_clm` contains these li
 
 which define three output streams. Stream one (`*.h0.*.nc`) contains the gridded monthly data, stream two (`*.h1.*.nc`) contains daily gridded data and stream three (`*.h2.*.nc`) contains unstructured monthly vector data. 
 
+
+## Importing the package
+Include package from a relative path:
+```python
+sys.path.insert(0, "..")
+from libvector import VectorMecVariable
+```
+
+or from an absolute path:
+```python
+sys.path.insert(0, "/glade/u/home/lvank/github/libvector/")
+from libvector import VectorMecVariable
+```
+
 ## Examples
 see the `examples` directory. 
 
 ## Usage notes
 Some operations require additional information, for instance the ice cover or the topographic height of columns.
 **Alas, the documentation about this still needs to be written.**
-Luckily, the package will yield an error message in case a requirement hasn't been met.
+Luckily, the package will yield a somewhat helpful error message in case a requirement hasn't been met.
 
 ## Getting help
 Create an Github issue at https://github.com/lvankampenhout/libvector or contact me at L.vankampenhout@uu.nl
