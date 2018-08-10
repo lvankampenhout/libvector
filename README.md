@@ -1,43 +1,51 @@
-## Description
 
-Some scripts I wrote to convert CLM column or vector output to something gridded. The two most relevant high-level scripts are:
+Package for reading and processing Community Land Model (CLM) vector output, in particular useful for processing multiple elevation class (MEC) output over glaciated landunits.
 
-* vector2gridded2d.py  
-uses PCT_GLC_MEC to calculate grid cell mean values ( this should give 2D gridded equal to the ICE_* variables)
+## What is vector output? 
+Normal CLM output is layed out on a latitude/longitude grid with each number representing the grid cell average value. 
+However, internally CLM grid cells are made out of columns, for instance crop, lake and swamp. 
+Each column has a type called a "landunit", we refer to the CLM User Guide for more details.
+In order to retrieve the column output one can set
 
-* vector2gridded3d.py  
-yields 3d (levelled by MEC) fields. Can be used further to interpolate to any surface. 
+   hist_dov2xy = .false. 
+  
+in the CLM namelist. 
+Instead of a structured lat-lon grid, the output is now unstructured and each value represents a column.
+This is column or vector output. 
 
-Both scripts share some underlying code:
+## Multiple elevation classes
+Here, we are interested in the vertical distribution of energy and mass over glaciers.
+CLM is capable of using "Multiple Elevation Classes" (ref Lipscomb 2013), a subgrid scale parameterization which basically boils down to the fact that we have a independent CLM glacier columns at different heights within a grid cell.
+The values at different heights can be obtained from the vector output (see above). 
 
-* DataReaderCesmVector.py  
-this code implements a 'datareader' class, that (1) stores the vector data in memory, and (2) has member functions that operate on that data. 
-In order to single out a certain landunit types (e.g. GLC_MEC) , the following piece of code is essential: 
-
-      for lev in range(GLC_NEC):
-         mask = (self.coltype==(400+lev+1))
-         idx, = np.where(mask)
-         ix = self.ixy[idx]-1
-         iy = self.jxy[idx]-1
-         var_out[:,iy,ix,lev] = self.data_cesm[:,idx]
-
-The hardcoded 400 signals GLC_MEC columns and may need to be changed depending on your application.
+## This package
+The goal of this package is to take the unstructured vector output and turn that into something more useable: a structured lat-lon 3d gridded field. 
+The core of this package is the `VectorMecVariable` class which represents exactly one variable stored in one vector history file.
 
 
-## Procedure for remapping CLM vector output to RACMO grid
+## Requirements
+The user should have CLM vector output. E.g. the `user_nl_clm` contains these lines
 
-1. convert vector to 3d gridded data: vector2gridded3d.py
-2. horizontal interpolation: convert_grid.bsh OR cdo remapnn command below
-3. vertical interpolation: interpolate_to_racmo_topo.py
-4. (optional) merge all together  
-`cdo -O merge *_downscaled.nc downscaled_merged.nc`
+   hist_nhtfrq = 0,-24,0
+   hist_mfilt = 1,1,1
+   hist_dov2xy = .true., .true, .false.
+   
+   ! Daily output
+   ! hist_fincl2 = 'QSNOMELT'
+   
+   ! monthly, vector
+   hist_fincl3 = 'QICE`
 
-## Horizontal remapping example (step 2)
-Example for Cheyenne
-```
-alias cdo='/glade/u/home/lvank/bin/cdo-1.8.2/src/cdo'
-FILE=gridded3d_QICE_MELT_b.e20.BHIST.f09_g17.20thC.190_ramp204_reset.002_1961-1990_ymonmean.nc
-NEWFILE=$(echo $FILE | sed 's/ymonmean/ymonmean_racmo/')
-cdo remapnn,grid_ZGRN11_new_CDO_1.8.txt $FILE $NEW
-```
-Batch script is called `convert_grid.bsh`
+which define three output streams. Stream one (`*.h0.*.nc`) contains the gridded monthly data, stream two (`*.h1.*.nc`) contains daily gridded data and stream three (`*.h2.*.nc`) contains unstructured monthly vector data. 
+
+## Examples
+see the `examples` directory. 
+
+## Usage notes
+Some operations require additional information, for instance the ice cover or the topographic height of columns.
+*The documentation needs to be updated to reflect these extra requirements.*
+The package will yield an error message in case a requirement hasn't been met.
+
+## Getting help
+Create an Github issue at https://github.com/lvankampenhout/libvector or contact me at L.vankampenhout@uu.nl
+
