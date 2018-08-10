@@ -7,11 +7,10 @@
 """
 import sys
 
-# import libvector package from local directory tree
-sys.path.insert(0, "../libvector")
+# include libvector package (directory) in local directory tree
+sys.path.insert(0, "..")
 
-from VectorMecVariable import VectorMecVariable
-from vector2gridded3d import vector2gridded3d
+from libvector import VectorMecVariable, vector2gridded3d 
 
 fname_vector ='/glade2/scratch2/lvank/archive/f.e20.FHIST.f09_001/lnd/hist/f.e20.FHIST.f09_001.clm2.h2.1983-05.nc'
 
