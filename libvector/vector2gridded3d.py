@@ -4,7 +4,7 @@
 @author: L.vankampenhout@uu.nl
 """
 
-from VectorMecVariable import VectorMecVariable, GLC_NEC, rtnnam
+from .VectorMecVariable import VectorMecVariable, GLC_NEC, rtnnam
 import netCDF4
 import time
 from netCDF4 import Dataset, default_fillvals
