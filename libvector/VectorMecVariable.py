@@ -133,9 +133,18 @@ class VectorMecVariable(object):
       Do the same for general grid information (lat, lon).
       Is called automatically during __init__()
       """
+
       with Dataset(self.fname_vecinfo,'r') as fid:
+         # Test for unstructured data (e.g. VR-CESM)
+
+         if ('lndgrid' in fid.dimensions.keys()): 
+            self.unstructured = True
+         else:
+            self.unstructured = False
+   
          self.lats = fid.variables['lat'][:]
          self.lons = fid.variables['lon'][:]           
+
          if (self.var_type == 'column'):
             self.ixy = fid.variables['cols1d_ixy'][:]
             self.jxy = fid.variables['cols1d_jxy'][:]
@@ -149,8 +158,13 @@ class VectorMecVariable(object):
          else:
             raise Exception('Unknown variable type: '+self.var_type)   
       
-      self.nlat = len(self.lats)
-      self.nlon = len(self.lons)
+      if (self.unstructured):
+         self.nlon = len(self.lats)
+         self.nlat = 1
+
+      else:
+         self.nlat = len(self.lats)
+         self.nlon = len(self.lons)
 
      
 
@@ -248,10 +262,9 @@ class VectorMecVariable(object):
 
       :returns:   numpy array (ntime,nlat,nlon,nlev)
       """
-      lon2d,lat2d = np.meshgrid(self.lons,self.lats)
       var_out = np.ma.zeros((self.ntime,self.nlat,self.nlon,GLC_NEC))
 
-      # Mask out all points without GLC_MEC
+      # Mask out all cells (those of type GLC_MEC will be overwritten later)
       var_out[:] = np.ma.masked
       
       for lev in range(GLC_NEC): 
