@@ -53,6 +53,9 @@ def vector2gridded3d(vmv, fname_target, custom_levs=None):
    # Define the coordinate variables
    times    = ncfile.createVariable('time', 'f8', ('time',))
    times.units = vmv.time_units
+   times.calendar = vmv.time_calendar
+   times.axis = vmv.time_axis
+   times.long_name = vmv.time_long_name
    times[:] = vmv.time
 
    levs   = ncfile.createVariable('lev', 'i4', ('lev',))

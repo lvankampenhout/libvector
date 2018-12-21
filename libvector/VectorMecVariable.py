@@ -78,6 +78,10 @@ class VectorMecVariable(object):
       with Dataset(fname_vector,'r') as fid:
          self.time = fid.variables['time'][:]
          self.time_units = fid.variables['time'].units
+         self.time_axis = fid.variables['time'].axis
+         self.time_long_name = fid.variables['time'].long_name
+         self.time_calendar = fid.variables['time'].calendar
+
          self.var_type = fid.variables[varname].dimensions[-1] # 'col' or 'pft'
          self.long_name = fid.variables[varname].long_name
 
