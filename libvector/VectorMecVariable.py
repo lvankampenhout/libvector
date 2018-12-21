@@ -78,8 +78,10 @@ class VectorMecVariable(object):
       with Dataset(fname_vector,'r') as fid:
          self.time = fid.variables['time'][:]
          self.time_units = fid.variables['time'].units
-         self.var_type = fid.variables[varname].dimensions[-1] # 'col' or 'pft'
+         self.var_type = fid.variables[varname].dimensions[-1] # 'col' or 'pft' or 'lon'
          self.long_name = fid.variables[varname].long_name
+
+         assert self.var_type in ("column", "pft", "lon"), "variable type <%s> not supported" % self.var_type
 
          try:
             self.units = fid.variables[varname].units
@@ -109,6 +111,9 @@ class VectorMecVariable(object):
       elif (self.ndim == 2):
          # assume time indexed variable
          self.ntime, self.nvec = self.data.shape
+      elif (self.ndim == 3 and self.var_type == "lon"):
+         self.ntime, self.nlat, self.nlon = self.data.shape
+         self.nvec = self.nlat * self.nlon
       else:
          raise NotImplementedError('Unexpected number of dimensions of input data, ndim = %d > 2' % self.ndim)
 
@@ -146,8 +151,10 @@ class VectorMecVariable(object):
             self.jxy = fid.variables['pfts1d_jxy'][:]
             self.lunit   = fid.variables['pfts1d_itype_lunit'][:]   # col landunit type (vegetated,urban,lake,wetland,glacier or glacier_mec)
             self.coltype   = fid.variables['pfts1d_itype_col'][:] 
+         elif (self.var_type == 'lon'):
+            self.ixy, self.jxy, self.lunit, self.coltype = None, None, None, None
          else:
-            raise Exception('Unknown variable type: '+self.var_type)   
+            raise NotImplementedError('Unknown variable type: '+self.var_type) 
       
       self.nlat = len(self.lats)
       self.nlon = len(self.lons)
@@ -253,20 +260,32 @@ class VectorMecVariable(object):
 
       # Mask out all points without GLC_MEC
       var_out[:] = np.ma.masked
-      
-      for lev in range(GLC_NEC): 
-         mask = (self.coltype==(400+lev+1)) # level 0 is tundra, omit this
-         idx, = np.where(mask)
-         ix = self.ixy[idx]-1
-         iy = self.jxy[idx]-1
-         
-         #print(tskin[:,idx].shape, var_out[:,iy,ix,lev].shape)
-         if (self.ndim == 1):
-            var_out[:,iy,ix,lev] = self.data[idx]
-         elif (self.ndim == 2):
-            var_out[:,iy,ix,lev] = self.data[:,idx]
-         else:
-            raise NotImplementedError('Unexpected number of dimensions of input data, ndim = %d > 2' % self.ndim)
+
+      if (self.var_type == "lon"): 
+         """
+         special case: this variable is in fact not unstructured
+         """
+         print(self.data.shape)
+         for lev in range(GLC_NEC): 
+            var_out[:,:,:,lev] = self.data[:]
+
+      else: 
+         """
+         unstructured variable, type column or pft
+         """
+         for lev in range(GLC_NEC): 
+            mask = (self.coltype==(400+lev+1)) # level 0 is tundra, omit this
+            idx, = np.where(mask)
+            ix = self.ixy[idx]-1
+            iy = self.jxy[idx]-1
+            
+            #print(tskin[:,idx].shape, var_out[:,iy,ix,lev].shape)
+            if (self.ndim == 1):
+               var_out[:,iy,ix,lev] = self.data[idx]
+            elif (self.ndim == 2):
+               var_out[:,iy,ix,lev] = self.data[:,idx]
+            else:
+               raise NotImplementedError('Unexpected number of dimensions of input data, ndim = %d > 2' % self.ndim)
    
       # Mask out points with missing value
       var_out = np.ma.masked_greater(var_out, 1e34)
