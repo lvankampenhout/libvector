@@ -24,9 +24,11 @@ def vector2gridded3d(vmv, fname_target, custom_levs=None):
    print('INFO: %s: number of vectors = %d' % (rtnnam(), vmv.nvec))
 
    if (custom_levs == None):
+      print("INFO: custom levels are NOT used")
       var3d = vmv.getGridded3d()
       nlev = GLC_NEC
    else:
+      print("INFO: custom levels are used")
       var3d = vmv.getGridded3dCustomLevels(custom_levs)
       nlev = len(custom_levs)
 
