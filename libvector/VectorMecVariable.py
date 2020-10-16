@@ -88,10 +88,12 @@ class VectorMecVariable(object):
          except AttributeError:
             self.units = "-"
 
+  
          if (varname[0:4] == "SNO_"):
             # special case for layered data (like SNO_T, SNO_GS) : use top layer only
             self.data = fid.variables[varname][:,0,:]
-         elif (varname[0:4] == "TSOI"):
+         #elif (varname[0:4] == "TSOI"):
+         elif (varname.strip() == "TSOI"):
             #print(np.shape(fid.variables[varname][:])) # (1, 25, 97387)
             self.data = fid.variables[varname][:,0,:]
          else:
